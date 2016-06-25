@@ -25,7 +25,9 @@ Or install it yourself as:
 
 The Try type represents a computation that may either result in an exception, or return a successfully computed value ([scala-docs](http://www.scala-lang.org/api/2.11.8/index.html#scala.util.Try))
 
-[TODO]
+```ruby
+Try{ 1/0 }.map{|v| v.to_s}.recover{"Infinity"} # => "Infinity"
+```
 
 ## Development
 
