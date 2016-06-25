@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Ytry by lbarasti</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">Ytry</h1>
+      <h2 class="project-tagline">A Scala inspired implementation of Try for Ruby</h2>
+      <a href="https://github.com/lbarasti/ytry" class="btn">View on GitHub</a>
+      <a href="https://github.com/lbarasti/ytry/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/lbarasti/ytry/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <p><a href="https://badge.fury.io/rb/ytry"><img src="https://badge.fury.io/rb/ytry.svg" alt="Gem Version"></a>
+<a href="https://travis-ci.org/lbarasti/ytry"><img src="https://travis-ci.org/lbarasti/ytry.svg?branch=master" alt="Build Status"></a> <a href="https://coveralls.io/github/lbarasti/ytry?branch=master"><img src="https://coveralls.io/repos/github/lbarasti/ytry/badge.svg?branch=master" alt="Coverage Status"></a></p>
+
+<h1>
+<a id="ytry" class="anchor" href="#ytry" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Ytry</h1>
+
+<p>A <a href="http://www.scala-lang.org/api/current/index.html#scala.util.Try">Scala</a> inspired gem that introduces <code>Try</code>s to Ruby while aiming for an idiomatic API.</p>
+
+<h2>
+<a id="installation" class="anchor" href="#installation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Installation</h2>
+
+<p>Add this line to your application's Gemfile:</p>
+
+<div class="highlight highlight-source-ruby"><pre><span class="pl-k">gem</span> <span class="pl-s"><span class="pl-pds">'</span>ytry<span class="pl-pds">'</span></span></pre></div>
+
+<p>And then execute:</p>
+
+<pre><code>$ bundle
+</code></pre>
+
+<p>Or install it yourself as:</p>
+
+<pre><code>$ gem install ytry
+</code></pre>
+
+<h2>
+<a id="basic-usage" class="anchor" href="#basic-usage" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Basic usage</h2>
+
+<p>The Try type represents a computation that may either result in an exception, or return a successfully computed value (<a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.util.Try">scala-docs</a>)</p>
+
+<div class="highlight highlight-source-ruby"><pre>
+<span class="pl-c1">Try</span>{ <span class="pl-c1">1</span><span class="pl-k">/</span><span class="pl-c1">0</span> }.map{|<span class="pl-smi">value</span>| valule.to_s}.recover{<span class="pl-s"><span class="pl-pds">'</span>Infinity<span class="pl-pds">'</span></span>} <span class="pl-c"># Success(Infinity)</span></pre></div>
+
+<h2>
+<a id="development" class="anchor" href="#development" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Development</h2>
+
+<p>After checking out the repo, run <code>bin/setup</code> to install dependencies. Then, run <code>rake test</code> to run the tests. You can also run <code>bin/console</code> for an interactive prompt that will allow you to experiment.</p>
+
+<p>To install this gem onto your local machine, run <code>bundle exec rake install</code>. To release a new version, update the version number in <code>version.rb</code>, and then run <code>bundle exec rake release</code>, which will create a git tag for the version, push git commits and tags, and push the <code>.gem</code> file to <a href="https://rubygems.org">rubygems.org</a>.</p>
+
+<h2>
+<a id="contributing" class="anchor" href="#contributing" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Contributing</h2>
+
+<p>Bug reports and pull requests are welcome on GitHub at <a href="https://github.com/lbarasti/ytry">https://github.com/lbarasti/ytry</a>. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the <a href="http://contributor-covenant.org">Contributor Covenant</a> code of conduct.</p>
+
+<h2>
+<a id="license" class="anchor" href="#license" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>License</h2>
+
+<p>The gem is available as open source under the terms of the <a href="http://opensource.org/licenses/MIT">MIT License</a>.</p>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/lbarasti/ytry">Ytry</a> is maintained by <a href="https://github.com/lbarasti">lbarasti</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
