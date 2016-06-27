@@ -15,6 +15,19 @@ describe 'Try' do
   it 'should wrap an exception into Failure when an exception is raised' do
     Try{raise TypeError}.must_be_kind_of Failure
   end
+  describe '.zip' do
+    before do
+      @all_success = (1..5).map{|i| Try {i}}
+      @some_failure = (1..5).map{|i| i%2 == 0 ? Try{i} : Try{fail RuntimeError.new(i)}}
+    end
+    it 'should return a Success wrapping all the zipped values when there are no Failures' do
+      Try.zip(*@all_success).must_equal Success.new((1..5).to_a)
+    end
+    it 'should otherwise return the first Failure it finds in the given sequence of Trys' do
+      Try.zip(*@some_failure).must_be_kind_of Failure
+      Try.zip(*@some_failure).recover{|e| e}.get.message.must_equal "1"
+    end
+  end
 end
 
 describe 'Success' do
