@@ -18,6 +18,10 @@ module Ytry
         Failure.new(RuntimeError.new("Could not convert empty array-like object to Success")) :
         Success.new(value.to_ary.first)
     end
+    def self.zip *try_array
+      first_failure = try_array.find(&:empty?)
+      first_failure.nil? ? Success.new(try_array.map(&:get)) : first_failure
+    end
     def each &block
       to_ary.each &block
     end
@@ -42,10 +46,7 @@ module Ytry
       Try.ary_to_type self.get
     end
     def zip *others
-      # TODO return first Failure among arguments - if any
-      return Failure.new(Exception.new) if self.empty? || others.any?(&:empty?)
-      collection = others.reduce(self.to_a, &:concat)
-      Success.new collection
+      Try.zip(self, *others)
     end
     def | lambda
       self.flat_map &lambda # slow but easy to read + supports symbols out of the box
