@@ -15,7 +15,7 @@ module Ytry
       raise Try.invalid_argument('Argument must be an array-like object', value) unless value.respond_to? :to_ary
       return value if value.is_a? Try
       value.to_ary.empty? ?
-        Failure.new(RuntimeError.new("Could not convert empty array-like object to Success")) :
+        Failure.new(RuntimeError.new("Element not found")) :
         Success.new(value.to_ary.first)
     end
     def self.zip *try_array
@@ -39,7 +39,7 @@ module Ytry
       Try.ary_to_type(wrapped_result.flatten)
     end
     def grep(pattern, &block)
-      Try.ary_to_type super
+      self.empty? ? self : Try.ary_to_type(Try{super}.flatten)
     end
     def flatten
       return self if empty?

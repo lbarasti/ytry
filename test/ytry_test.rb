@@ -55,6 +55,17 @@ describe 'Success' do
   it 'should return the wrapped value on `#get_or_else`' do
     @success.get_or_else{fail}.must_equal @success_value
   end
+  it 'should support #grep' do
+    @success.grep(-> x {x.even?}).must_equal @success
+    @success.grep(-> x {x.odd?}).must_be_kind_of Failure
+    @success.grep(@success_value){:ok}.must_equal Success.new(:ok)
+    @success.grep(1..@success_value){:ok}.must_equal Success.new(:ok)
+    @success.grep(1..@success_value){fail}.must_be_kind_of Failure
+  end
+  it 'should support #zip' do
+    @success.zip(@success).must_equal Success.new([@success_value] * 2)
+    @success.zip(Try{fail}).must_be_kind_of Failure
+  end
 end
 
 describe 'Failure' do
@@ -124,6 +135,13 @@ describe 'Failure' do
       when Failure.new(RuntimeError) then :ok
       else fail
     end
+  end
+  it 'should always return itself on #grep' do
+    @failure.grep(->{true}).must_equal @failure
+  end
+  it 'should always return itself on #zip' do
+    @failure.zip(Try{:ok}).must_equal @failure
+    @failure.zip(Try{fail}).must_equal @failure
   end
   it 'should behave predictably when combining #recover and #flatten' do
     nested_try = @failure.recover{|e| Try{raise RuntimeError}}
