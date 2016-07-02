@@ -25,7 +25,9 @@ Or install it yourself as:
 
 The Try type represents a computation that may either result in an exception, or return a successfully computed value ([scala-docs](http://www.scala-lang.org/api/2.11.8/index.html#scala.util.Try))
 
+```ruby
 Try{ some_computation }
+```
 
 If the block passed to Try runs with no errors, then a `Success` wrapping the computed value is returned.
 
@@ -51,6 +53,20 @@ load_and_parse(actual_file) # Success([{"id"=>1, "name"=>"Lorenzo", "dob"=>"22/0
 `Try#map` and `Try#recover` are means to interact with the value wrapped by a Try in a safe way - i.e. with no risk of errors being raised.
 
 `Try#select` transforms a Success into a Failure when the underlying value does not satisfy the given predicate - i.e. the given block returns false. That can be useful when validating some input.
+
+`Try#get_or_else` provides a safe way of retrieving the possibly-missing value it contains. It returns the result of the given block when the Try is a Failure. It is equivalent to `Try#get` when the Try is a Success.
+
+```ruby
+invalid_json = "[\"missing_quote]"
+
+Try{ JSON.parse(invalid_json) }
+  .get_or_else{ [] } # []
+
+Try{ JSON.parse("[]") }
+  .get_or_else { fail "this block is ignored"}  # []
+```
+
+It is preferable to use `Try#get_or_else` over `Try#get`, as #get will raise an error when called on a Failure. It is possible to check for failure via `#empty?`, but that tipically leads to non-idiomatic code
 
 ## Development
 
