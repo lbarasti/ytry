@@ -3,12 +3,11 @@ require_relative '../test/test_helper' # IGNORE
 require 'test/unit' # IGNORE
 include Test::Unit::Assertions # IGNORE
 include Ytry # IGNORE
-
-base_dir = __FILE__.split('/')[0...-1].join('/')
-nonexisting_file = "#{base_dir}/data/not_found.json"
-wrong_format_file = "#{base_dir}/data/wrong_format.json"
-actual_file = "#{base_dir}/data/users.json"
-
+base_dir = __FILE__.split('/')[0...-1].join('/') # IGNORE
+nonexisting_file = "#{base_dir}/data/not_found.json" # IGNORE
+wrong_format_file = "#{base_dir}/data/wrong_format.json" # IGNORE
+actual_file = "#{base_dir}/data/users.json" # IGNORE
+# IGNORE
 def load_and_parse json_file
   Try { File.read(json_file) }
     .map {|content| JSON.parse(content)}

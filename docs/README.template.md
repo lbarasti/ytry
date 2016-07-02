@@ -25,9 +25,21 @@ Or install it yourself as:
 
 The Try type represents a computation that may either result in an exception, or return a successfully computed value ([scala-docs](http://www.scala-lang.org/api/2.11.8/index.html#scala.util.Try))
 
+Try{ some_computation }
+
+If the block passed to Try runs with no errors, then a `Success` wrapping the computed value is returned.
+
+An instance of `Failure` wrapping the error is returned otherwise.
+
+`Success` and `Failure` provide a unified API that lets us express a sequence of tranformations in a fluent way, without error handling cluttering the flow
+
 ```ruby
 <<<<<docs/basics.rb
 ```
+
+`Try#map` and `Try#recover` are means to interact with the value wrapped by a Try in a safe way - i.e. with no risk of errors being raised.
+
+`Try#select` transforms a Success into a Failure when the underlying value does not satisfy the given predicate - i.e. the given block returns false. That can be useful when validating some input.
 
 ## Development
 
