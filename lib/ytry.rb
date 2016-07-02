@@ -22,8 +22,10 @@ module Ytry
       first_failure = try_array.find(&:empty?)
       first_failure.nil? ? Success.new(try_array.map(&:get)) : first_failure
     end
-    def each &block
-      to_ary.each &block
+    def each
+      return enum_for(__method__) unless block_given?
+      yield self.get unless empty?
+      return self
     end
     %i(map select reject collect collect_concat).each do |method|
       define_method method, ->(&block) {

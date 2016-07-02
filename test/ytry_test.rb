@@ -101,7 +101,7 @@ describe 'Failure' do
     Try{@failure}.flat_map{|c| c}.must_equal @failure
   end
   it 'should be enumerable' do
-    @failure.each{|x| raise RuntimeError}.must_equal []
+    @failure.each{|x| raise RuntimeError}.must_equal @failure
     @failure.any?{|x| x > 0}.must_equal false
     @failure.all?{|x| x > 0}.must_equal true
     @failure.reduce(42){raise RuntimeError}.must_equal 42
