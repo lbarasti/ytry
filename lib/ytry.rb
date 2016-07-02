@@ -15,7 +15,7 @@ module Ytry
       raise Try.invalid_argument('Argument must be an array-like object', value) unless value.respond_to? :to_ary
       return value if value.is_a? Try
       value.to_ary.empty? ?
-        Failure.new(RuntimeError.new("Element not found")) :
+        Failure.new(RuntimeError.new("Element not found").tap{|ex| ex.set_backtrace(caller)}) :
         Success.new(value.to_ary.first)
     end
     def self.zip *try_array
