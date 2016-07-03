@@ -72,7 +72,7 @@ describe 'Failure' do
   before do
     @failure = Try{ 1 / 0 }
     @failure_type = @failure.error.class
-    @failure_message = @failure.error.message
+    @failure_message = @failure.error.inspect
   end
   it 'should raise an exception on #get' do
     -> { @failure.get }.must_raise ZeroDivisionError

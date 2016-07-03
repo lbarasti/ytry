@@ -97,7 +97,7 @@ module Ytry
     end
     def get() raise @error end
     def empty?() true end
-    def to_s() "Failure(#{@error})" end
+    def to_s() "Failure(#{@error.inspect})" end
     def to_ary() [] end
     def == other
       other.is_a?(Failure) && self.error == other.error
