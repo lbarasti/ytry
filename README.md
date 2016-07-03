@@ -68,10 +68,19 @@ Try { JSON.parse(invalid_json) }
   .get_or_else{ [] } # []
 
 Try { JSON.parse("[]") }
-  .get_or_else { fail "this block is ignored"}  # []
+  .get_or_else { fail "this block is ignored"} # []
 ```
 
 It is preferable to use `Try#get_or_else` over `Try#get`, as `#get` will raise an error when called on a Failure. It is possible to check for failure via `#empty?`, but that tipically leads to non-idiomatic code
+
+## Why Try?
+
+Using Try instead of rescue blocks can make your software both clearer and safer as it
+
+- leads to less verbose error handling
+- simplifies the way we deal with operations that might fail for several reasons (such as IO operations)
+- privileges method chaining thus reducing the need for auxiliary variables to store intermediate results in a computation
+- encourages programming towards immutability, where the data is transformed rather than mutated in place.
 
 ## Development
 
