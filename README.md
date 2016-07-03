@@ -23,17 +23,22 @@ Or install it yourself as:
 
 ## Basic usage
 
-The Try type represents a computation that may either result in an exception, or return a successfully computed value ([scala-docs](http://www.scala-lang.org/api/2.11.8/index.html#scala.util.Try))
-
-```ruby
-Try{ some_computation }
-```
+The Try type represents a computation that may either result in an error, or return a successfully computed value.
 
 If the block passed to Try runs with no errors, then a `Success` wrapping the computed value is returned.
 
 An instance of `Failure` wrapping the error is returned otherwise.
 
-`Success` and `Failure` provide a unified API that lets us express a sequence of tranformations in a fluent way, without error handling cluttering the flow
+```ruby
+require 'ytry'
+include Ytry
+
+Try { 1 + 1 } # Success(2)
+
+Try { 1 / 0 } # Failure(#<ZeroDivisionError: divided by 0>)
+```
+
+`Success` and `Failure` provide a unified API that lets us express a sequence of tranformations in a fluent way, without error handling cluttering the flow:
 
 ```ruby
 def load_and_parse json_file
@@ -59,14 +64,14 @@ load_and_parse(actual_file) # Success([{"id"=>1, "name"=>"Lorenzo", "dob"=>"22/0
 ```ruby
 invalid_json = "[\"missing_quote]"
 
-Try{ JSON.parse(invalid_json) }
+Try { JSON.parse(invalid_json) }
   .get_or_else{ [] } # []
 
-Try{ JSON.parse("[]") }
+Try { JSON.parse("[]") }
   .get_or_else { fail "this block is ignored"}  # []
 ```
 
-It is preferable to use `Try#get_or_else` over `Try#get`, as #get will raise an error when called on a Failure. It is possible to check for failure via `#empty?`, but that tipically leads to non-idiomatic code
+It is preferable to use `Try#get_or_else` over `Try#get`, as `#get` will raise an error when called on a Failure. It is possible to check for failure via `#empty?`, but that tipically leads to non-idiomatic code
 
 ## Development
 

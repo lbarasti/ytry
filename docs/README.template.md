@@ -23,17 +23,17 @@ Or install it yourself as:
 
 ## Basic usage
 
-The Try type represents a computation that may either result in an exception, or return a successfully computed value ([scala-docs](http://www.scala-lang.org/api/2.11.8/index.html#scala.util.Try))
-
-```ruby
-Try{ some_computation }
-```
+The Try type represents a computation that may either result in an error, or return a successfully computed value.
 
 If the block passed to Try runs with no errors, then a `Success` wrapping the computed value is returned.
 
 An instance of `Failure` wrapping the error is returned otherwise.
 
-`Success` and `Failure` provide a unified API that lets us express a sequence of tranformations in a fluent way, without error handling cluttering the flow
+```ruby
+<<<<<docs/setup.rb
+```
+
+`Success` and `Failure` provide a unified API that lets us express a sequence of tranformations in a fluent way, without error handling cluttering the flow:
 
 ```ruby
 <<<<<docs/basics.rb
@@ -49,7 +49,7 @@ An instance of `Failure` wrapping the error is returned otherwise.
 <<<<<docs/get_or_else.rb
 ```
 
-It is preferable to use `Try#get_or_else` over `Try#get`, as #get will raise an error when called on a Failure. It is possible to check for failure via `#empty?`, but that tipically leads to non-idiomatic code
+It is preferable to use `Try#get_or_else` over `Try#get`, as `#get` will raise an error when called on a Failure. It is possible to check for failure via `#empty?`, but that tipically leads to non-idiomatic code
 
 ## Development
 

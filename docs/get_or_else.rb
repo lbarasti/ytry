@@ -7,11 +7,11 @@ include Ytry # IGNORE
 invalid_json = "[\"missing_quote]"
 
 same_string( # IGNORE
-Try{ JSON.parse(invalid_json) }
+Try { JSON.parse(invalid_json) }
   .get_or_else{ [] }
 ).('[]') # COMMENT
 
 same_string( # IGNORE
-Try{ JSON.parse("[]") }
-  .get_or_else { fail "this block is ignored"} 
+Try { JSON.parse("[]") }
+  .get_or_else { fail "this block is ignored"}
 ).('[]') # COMMENT
