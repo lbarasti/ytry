@@ -47,22 +47,61 @@
 <h2>
 <a id="basic-usage" class="anchor" href="#basic-usage" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Basic usage</h2>
 
-<p>The Try type represents a computation that may either result in an exception, or return a successfully computed value (<a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.util.Try">scala-docs</a>)</p>
+<p>The Try type represents a computation that may either result in an error, or return a successfully computed value.</p>
 
-<div class="highlight highlight-source-ruby"><pre>
-<span class="pl-c1">Try</span>{ <span class="pl-c1">1</span><span class="pl-k">/</span><span class="pl-c1">0</span> }.map{|<span class="pl-smi">value</span>| valule.to_s}.recover{<span class="pl-s"><span class="pl-pds">'</span>Infinity<span class="pl-pds">'</span></span>} <span class="pl-c"># Success(Infinity)</span></pre></div>
+<p>If the block passed to Try runs with no errors, then a <code>Success</code> wrapping the computed value is returned.</p>
+
+<p>An instance of <code>Failure</code> wrapping the error is returned otherwise.</p>
+
+<div class="highlight highlight-source-ruby"><pre><span class="pl-k">require</span> <span class="pl-s"><span class="pl-pds">'</span>ytry<span class="pl-pds">'</span></span>
+<span class="pl-k">include</span> <span class="pl-c1">Ytry</span>
+
+<span class="pl-c1">Try</span> { <span class="pl-c1">1</span> <span class="pl-k">+</span> <span class="pl-c1">1</span> } <span class="pl-c"># Success(2)</span>
+
+<span class="pl-c1">Try</span> { <span class="pl-c1">1</span> <span class="pl-k">/</span> <span class="pl-c1">0</span> } <span class="pl-c"># Failure(#&lt;ZeroDivisionError: divided by 0&gt;)</span></pre></div>
+
+<p><code>Success</code> and <code>Failure</code> provide a unified API that lets us express a sequence of tranformations in a fluent way, without error handling cluttering the flow:</p>
+
+<div class="highlight highlight-source-ruby"><pre><span class="pl-k">def</span> <span class="pl-en">load_and_parse</span> <span class="pl-smi">json_file</span>
+  <span class="pl-c1">Try</span> { <span class="pl-c1">File</span>.read(json_file) }
+    .map {|<span class="pl-smi">content</span>| <span class="pl-c1">JSON</span>.parse(content)}
+    .select {|<span class="pl-smi">table</span>| table.is_a? <span class="pl-c1">Array</span>}
+    .recover {|<span class="pl-smi">e</span>| puts <span class="pl-s"><span class="pl-pds">"</span>Recovering from <span class="pl-pse">#{</span><span class="pl-s1">e.message</span><span class="pl-pse"><span class="pl-s1">}</span></span><span class="pl-pds">"</span></span>; []}
+<span class="pl-k">end</span>
+
+load_and_parse(nonexisting_file) <span class="pl-c"># prints "Recovering from No such file..." # Success([])</span>
+
+load_and_parse(wrong_format_file) <span class="pl-c"># prints "Recovering from Element not found" # Success([])</span>
+
+load_and_parse(actual_file) <span class="pl-c"># Success([{"id"=&gt;1, "name"=&gt;"Lorenzo", "dob"=&gt;"22/07/1985"}])</span></pre></div>
+
+<p><code>Try#map</code> and <code>Try#recover</code> are means to interact with the value wrapped by a Try in a safe way - i.e. with no risk of errors being raised.</p>
+
+<p><code>Try#select</code> transforms a Success into a Failure when the underlying value does not satisfy the given predicate - i.e. the given block returns false. That can be useful when validating some input.</p>
+
+<p><code>Try#get_or_else</code> provides a safe way of retrieving the possibly-missing value it contains. It returns the result of the given block when the Try is a Failure. It is equivalent to <code>Try#get</code> when the Try is a Success.</p>
+
+<div class="highlight highlight-source-ruby"><pre>invalid_json <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>[<span class="pl-cce">\"</span>missing_quote]<span class="pl-pds">"</span></span>
+
+<span class="pl-c1">Try</span> { <span class="pl-c1">JSON</span>.parse(invalid_json) }
+  .get_or_else{ [] } <span class="pl-c"># []</span>
+
+<span class="pl-c1">Try</span> { <span class="pl-c1">JSON</span>.parse(<span class="pl-s"><span class="pl-pds">"</span>[]<span class="pl-pds">"</span></span>) }
+  .get_or_else { fail <span class="pl-s"><span class="pl-pds">"</span>this block is ignored<span class="pl-pds">"</span></span>} <span class="pl-c"># []</span></pre></div>
+
+<p>It is preferable to use <code>Try#get_or_else</code> over <code>Try#get</code>, as <code>#get</code> will raise an error when called on a Failure. It is possible to check for failure via <code>#empty?</code>, but that tipically leads to non-idiomatic code</p>
 
 <h2>
-<a id="development" class="anchor" href="#development" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Development</h2>
+<a id="why-try" class="anchor" href="#why-try" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Why Try?</h2>
 
-<p>After checking out the repo, run <code>bin/setup</code> to install dependencies. Then, run <code>rake test</code> to run the tests. You can also run <code>bin/console</code> for an interactive prompt that will allow you to experiment.</p>
+<p>Using Try instead of rescue blocks can make your software both clearer and safer as it</p>
 
-<p>To install this gem onto your local machine, run <code>bundle exec rake install</code>. To release a new version, update the version number in <code>version.rb</code>, and then run <code>bundle exec rake release</code>, which will create a git tag for the version, push git commits and tags, and push the <code>.gem</code> file to <a href="https://rubygems.org">rubygems.org</a>.</p>
-
-<h2>
-<a id="contributing" class="anchor" href="#contributing" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Contributing</h2>
-
-<p>Bug reports and pull requests are welcome on GitHub at <a href="https://github.com/lbarasti/ytry">https://github.com/lbarasti/ytry</a>. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the <a href="http://contributor-covenant.org">Contributor Covenant</a> code of conduct.</p>
+<ul>
+<li>leads to less verbose error handling</li>
+<li>simplifies the way we deal with operations that might fail for several reasons (such as IO operations)</li>
+<li>privileges method chaining thus reducing the need for auxiliary variables to store intermediate results in a computation</li>
+<li>encourages programming towards immutability, where the data is transformed rather than mutated in place.</li>
+</ul>
 
 <h2>
 <a id="license" class="anchor" href="#license" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>License</h2>
