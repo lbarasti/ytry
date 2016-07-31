@@ -44,6 +44,14 @@ describe 'Success' do
     @success.flat_map{|c| Try{c - 42}}.must_equal Try{0}
     @success.flat_map{|c| Try{raise TypeError}}.must_be_kind_of Failure
   end
+  it 'should support flattening to the specified level' do
+    triple_try = Try{Try{@success}}
+    triple_try.flatten(-1).must_equal triple_try
+    triple_try.flatten.get.must_equal @success
+    triple_try.flatten(1).get.must_equal @success
+    triple_try.flatten(2).must_equal @success
+    -> { triple_try.flatten(3) }.must_raise TypeError
+  end
   it 'should be forgiving when calling `#flat_map` on a Success wrapping a scalar value' do
     Try{1} | -> x {x/0}
     Try{1} | -> x {x}
@@ -97,7 +105,11 @@ describe 'Failure' do
   end
   it 'should support `#flatten`/`#flat_map`' do
     @failure.flatten.must_equal @failure
+    Try{@failure}.flatten(-1).get.must_equal @failure
     Try{@failure}.flatten.must_equal @failure
+    Try{@failure}.flatten(1).must_equal @failure
+    Try{@failure}.flatten(2).must_equal @failure
+    Try{@failure}.flatten(3).must_equal @failure
     Try{@failure}.flat_map{|c| c}.must_equal @failure
   end
   it 'should be enumerable' do

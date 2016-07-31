@@ -43,9 +43,11 @@ module Ytry
     def grep(pattern, &block)
       self.empty? ? self : Try.ary_to_type(Try{super}.flatten)
     end
-    def flatten
-      return self if empty?
-      Try.ary_to_type self.get
+    def flatten level = 1
+      level.times.reduce(self) { |current, _|
+        break(current) if current.empty?
+        Try.ary_to_type current.get
+      }
     end
     def zip *others
       Try.zip(self, *others)
@@ -56,7 +58,7 @@ module Ytry
     def or_else
       return self unless empty?
       other = yield
-      other.is_a?(Try) ? other : raise(Try.invalid_argument('Block should evaluate to an Try', other))
+      other.is_a?(Try) ? other : raise(Try.invalid_argument('Block should evaluate to an instance of Try', other))
     end
     def get_or_else
       raise ArgumentError, 'missing block' unless block_given?
