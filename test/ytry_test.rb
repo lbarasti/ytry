@@ -35,6 +35,15 @@ describe 'Success' do
     @success = Try{ 41 + 1 }
     @success_value = @success.get
   end
+  it 'should evaluate the given block and return itself on #each/#on_success, even if the block raises an error' do
+    initial_value, current_value, toggle_value = -> {init = false; flag = init; [init, -> {flag}, -> {flag = !flag}]}.()
+    @success.each{|v| toggle_value.()}.must_equal @success
+    current_value.().must_equal !initial_value
+    @success.on_success{|v| toggle_value.()}.must_equal @success
+    current_value.().must_equal initial_value
+    @success.each{|v| fail}.must_equal @success
+    @success.on_success{|v| fail}.must_equal @success
+  end
   it 'should not support flattening a scalar value' do
     -> {@success.flatten}.must_raise TypeError
   end
@@ -112,12 +121,17 @@ describe 'Failure' do
     Try{@failure}.flatten(3).must_equal @failure
     Try{@failure}.flat_map{|c| c}.must_equal @failure
   end
-  it 'should be enumerable' do
-    @failure.each{|x| raise RuntimeError}.must_equal @failure
-    @failure.any?{|x| x > 0}.must_equal false
-    @failure.all?{|x| x > 0}.must_equal true
-    @failure.reduce(42){raise RuntimeError}.must_equal 42
+  it 'should not evaluate the given block when calling enumerable methods' do
+    initial_value, current_value, toggle_value = -> {init = false; flag = init; [init, -> {flag}, -> {flag = !flag}]}.()
+    @failure.each{|x| toggle_value.()}.must_equal @failure
+    current_value.().must_equal initial_value
+    @failure.any?{|x| toggle_value.(); x > 0}.must_equal false
+    current_value.().must_equal initial_value
+    @failure.all?{|x| toggle_value.(); x > 0}.must_equal true
+    current_value.().must_equal initial_value
     @failure.include?(42).must_equal false
+    @failure.reduce(42){toggle_value.(); raise RuntimeError}.must_equal 42
+    @failure.each{|x| raise RuntimeError}.must_equal @failure
   end
   it 'should return `other` on `#or_else`' do
     @failure.or_else {Try {1}}.get.must_equal 1

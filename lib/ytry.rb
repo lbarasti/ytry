@@ -24,7 +24,9 @@ module Ytry
     end
     def each
       return enum_for(__method__) unless block_given?
-      yield self.get unless empty?
+      Try { yield self.get unless empty? }
+      return self
+    end
       return self
     end
     %i(map select reject collect collect_concat).each do |method|
