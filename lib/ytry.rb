@@ -27,6 +27,9 @@ module Ytry
       Try { yield self.get unless empty? }
       return self
     end
+    alias_method :on_success, :each
+    def on_failure
+      return enum_for(__method__) unless block_given?
       return self
     end
     %i(map select reject collect collect_concat).each do |method|
@@ -108,6 +111,11 @@ module Ytry
     end
     def === other
       other.is_a?(Failure) && self.error === other.error
+    end
+    def on_failure
+      return enum_for(__method__) unless block_given?
+      Try { yield @error }
+      return self
     end
     def recover &block
       raise ArgumentError, 'missing block' unless block_given?

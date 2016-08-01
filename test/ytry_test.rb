@@ -36,13 +36,18 @@ describe 'Success' do
     @success_value = @success.get
   end
   it 'should evaluate the given block and return itself on #each/#on_success, even if the block raises an error' do
-    initial_value, current_value, toggle_value = -> {init = false; flag = init; [init, -> {flag}, -> {flag = !flag}]}.()
+    initial_value, current_value, toggle_value = new_flag()
     @success.each{|v| toggle_value.()}.must_equal @success
     current_value.().must_equal !initial_value
     @success.on_success{|v| toggle_value.()}.must_equal @success
     current_value.().must_equal initial_value
     @success.each{|v| fail}.must_equal @success
     @success.on_success{|v| fail}.must_equal @success
+  end
+  it 'should return itself and not evaluate the given block on #on_failure' do
+    initial_value, current_value, toggle_value = new_flag()
+    @success.on_failure{toggle_value.()}.must_equal @success
+    current_value.().must_equal initial_value
   end
   it 'should not support flattening a scalar value' do
     -> {@success.flatten}.must_raise TypeError
@@ -122,7 +127,7 @@ describe 'Failure' do
     Try{@failure}.flat_map{|c| c}.must_equal @failure
   end
   it 'should not evaluate the given block when calling enumerable methods' do
-    initial_value, current_value, toggle_value = -> {init = false; flag = init; [init, -> {flag}, -> {flag = !flag}]}.()
+    initial_value, current_value, toggle_value = new_flag()
     @failure.each{|x| toggle_value.()}.must_equal @failure
     current_value.().must_equal initial_value
     @failure.any?{|x| toggle_value.(); x > 0}.must_equal false
@@ -132,6 +137,11 @@ describe 'Failure' do
     @failure.include?(42).must_equal false
     @failure.reduce(42){toggle_value.(); raise RuntimeError}.must_equal 42
     @failure.each{|x| raise RuntimeError}.must_equal @failure
+  end
+  it 'should return itself and evaluate the given block on #on_failure' do
+    initial_value, current_value, toggle_value = new_flag()
+    @failure.on_failure{toggle_value.()}.must_equal @failure
+    current_value.().must_equal !initial_value
   end
   it 'should return `other` on `#or_else`' do
     @failure.or_else {Try {1}}.get.must_equal 1
