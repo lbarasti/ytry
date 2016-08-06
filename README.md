@@ -82,6 +82,44 @@ Using Try instead of rescue blocks can make your software both clearer and safer
 - privileges method chaining thus reducing the need for auxiliary variables to store intermediate results in a computation
 - encourages programming towards immutability, where the data is transformed rather than mutated in place.
 
+## Advanced Usage
+### #reduce
+Given a Try instance `try`, a value `c` and a lambda `f`,
+```
+try.reduce(c, &f)
+```
+returns `f.(c, try)` if `try` is a `Success` AND the evaluation of the lambda `f` did not throw any error, it returns `c` otherwise.
+
+This is a shortcut to
+```
+try.map{|v| f.(c,v)}.get_or_else {c}
+```
+
+
+### #flatten
+When dealing with nested `Try`s we can use flatten to reduce the level of nesting
+```
+success = Try{:ok}
+failure = Try{fail}
+Try{success}.flatten # Success(:ok)
+Try{failure}.flatten # Failure(RuntimeError)
+```
+
+### Interoperability with Array-like obects
+Because of it's ary-like nature, instances of `Try` play well with Array instances. In particular, flattening an Array of `Try`s is equivalent to filtering out the `Failures` from the array and then calling #get on the Success instances
+```
+(1..4).map{|v| Try{v}.select(&:odd?)}
+      .flatten # [1, 3]
+```
+Behind the scenes `Array#flatten` is iterating over the collection and concatenating the ary-representation of each element.
+Now `Failure#to_ary` returns `[]`, while `Success#to_ary` returns `[v]` - where `v` is the value wrapped by Success - and that does the trick.
+
+We can squeeze the code listed above even more with `Array#flat_map`
+```
+(1..4).flat_map{|v| Try{v}.select(&:odd?)} # [1, 3]
+```
+Again, there is no magic behind this behaviour, we are just exploiting Ruby's duck typing.
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
