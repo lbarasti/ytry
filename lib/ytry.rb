@@ -95,6 +95,10 @@ module Ytry
       raise ArgumentError, 'missing block' unless block_given?
       self
     end
+    def recover_with &block
+      raise ArgumentError, 'missing block' unless block_given?
+      self
+    end
   end
   class Failure
     include Try
@@ -121,6 +125,14 @@ module Ytry
       raise ArgumentError, 'missing block' unless block_given?
       candidate = Success.new(@error).map &block
       (!candidate.empty? && candidate.get.nil?) ? self : candidate
+    end
+    def recover_with &block
+      raise ArgumentError, 'missing block' unless block_given?
+      begin
+        block.call(@error) || self
+      rescue => ex
+        Failure.new(ex)
+      end
     end
   end
 end
