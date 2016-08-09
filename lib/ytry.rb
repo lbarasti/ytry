@@ -35,7 +35,7 @@ module Ytry
     %i(map select reject collect collect_concat).each do |method|
       define_method method, ->(&block) {
         block or return enum_for(method)
-        self.empty? ? self : Try.ary_to_type(Try{super(&block)}.flatten)
+        self.empty? ? self : Try{block.call(self.get)}
       }
     end
     def flat_map &block
