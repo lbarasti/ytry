@@ -127,11 +127,11 @@ module Ytry
       (!candidate.empty? && candidate.get.nil?) ? self : candidate
     end
     def recover_with &block
-      raise ArgumentError, 'missing block' unless block_given?
-      begin
-        block.call(@error) || self
-      rescue => ex
-        Failure.new(ex)
+      candidate = self.recover(&block)
+      if (!candidate.empty? && !candidate.get.is_a?(Try))
+        raise(Try.invalid_argument('Block should evaluate to an instance of Try', candidate.get))
+      else
+        candidate.flatten
       end
     end
   end

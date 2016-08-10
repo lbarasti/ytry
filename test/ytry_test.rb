@@ -172,6 +172,45 @@ describe 'Failure' do
       else fail
     end
   end
+
+  describe '#recover_with' do
+    it 'is similar to #or_else...' do
+      a_success = Success.new(0)
+      other_failure = Failure.new(RuntimeError)
+      @failure.recover_with{ other_failure }.must_equal other_failure
+      @failure.recover_with{ a_success }.must_equal a_success
+    end
+
+    it '... but returns the caller when the block evaluates to nil - ' +
+       'so that we can match on the desired errors in a concise fashion' do
+      @failure.recover_with{ nil }.must_equal @failure
+
+      a_success = Success.new(42)
+      @failure.recover_with{|e| a_success if e.is_a?(RuntimeError)}
+        .must_equal @failure
+
+      @failure.recover_with{|e| a_success if e.is_a?(@failure_type)}
+        .must_equal a_success
+
+      @failure.recover_with{|e| case e
+        when RuntimeError then a_success end
+      }.must_equal @failure
+    end
+
+    it 'will raise a TypeError when the block does not evaluate to a Try' do
+      -> { @failure.recover_with{ [1,2,3] } }.must_raise TypeError
+      -> { @failure.recover_with{ false } }.must_raise TypeError
+    end
+
+    it 'should update the failure type when the recover_with block raises an error' do
+      case @failure.recover_with{ raise RuntimeError }
+        when @failure then fail
+        when Failure.new(RuntimeError) then :ok
+        else fail
+      end
+    end
+  end
+
   it 'should always return itself on #grep' do
     @failure.grep(->{true}).must_equal @failure
   end
