@@ -158,18 +158,26 @@ describe 'Failure' do
   it 'should have a nice string representation' do
     @failure.to_s.must_equal "Failure(#{@failure_message})"
   end
-  it 'should be recoverable' do
-    @failure.recover{|e| e}.get.must_be_kind_of @failure_type
-    @failure.recover{|e| 1}.must_equal Success.new(1)
-  end
-  it 'should preserve the current error if the recover block returns nil' do
-    @failure.recover{|e| case e; when RuntimeError then 1; end}.must_equal @failure
-  end
-  it 'should update the failure type when the recover block raises an error' do
-    case @failure.recover{|e| raise RuntimeError}
-      when Failure.new(@failure_type) then fail
-      when Failure.new(RuntimeError) then :ok
-      else fail
+
+  describe '#recover' do
+    it 'turns a Failure into a Success when the given block evaluates with no errors' do
+      @failure.recover{ 1 }.must_equal Success.new(1)
+    end
+
+    it "puts the error wrapped by the Failure in the block's scope for inspection" do
+      @failure.recover{|e| e}.get.must_be_kind_of @failure_type
+    end
+
+    it 'should preserve the current error if the recover block returns nil' do
+      @failure.recover{|e| case e; when RuntimeError then 1; end}.must_equal @failure
+    end
+
+    it 'should update the failure type when the recover block raises an error' do
+      case @failure.recover{|e| raise RuntimeError}
+        when Failure.new(@failure_type) then fail
+        when Failure.new(RuntimeError) then :ok
+        else fail
+      end
     end
   end
 
