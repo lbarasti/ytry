@@ -77,13 +77,39 @@ describe 'Success' do
   it 'should return the wrapped value on `#get_or_else`' do
     @success.get_or_else{fail}.must_equal @success_value
   end
-  it 'should support #grep' do
-    @success.grep(-> x {x.even?}).must_equal @success
-    @success.grep(-> x {x.odd?}).must_be_kind_of Failure
-    @success.grep(@success_value){:ok}.must_equal Success.new(:ok)
-    @success.grep(1..@success_value){:ok}.must_equal Success.new(:ok)
-    @success.grep(1..@success_value){fail}.must_be_kind_of Failure
+
+  describe '#grep' do
+    it 'should be equivalent to a #select + #map combo' do
+      @success.grep(-> x {x.even?}).must_equal @success
+      @success.grep(-> x {x.odd?}).must_be_kind_of Failure
+      @success.grep(@success_value){:ok}.must_equal Success.new(:ok)
+      @success.grep(1..@success_value){:ok}.must_equal Success.new(:ok)
+      @success.grep(1..@success_value){fail}.must_be_kind_of Failure
+    end
+
+    it 'should return a Failure wrapping any error raised while matching' do
+      MatchingError = Class.new StandardError
+      ->{ @success.grep(-> v { raise MatchingError }){ 42 }.get }.must_raise MatchingError
+      ->{ @success.grep(-> v { raise MatchingError }){|v| raise TypeError}.get }.must_raise MatchingError
+    end
+
+    it 'should return a Failure when no match is found' do
+      ->{ @success.grep(-> v { false }){ 42 }.get }.must_raise RuntimeError
+      ->{ @success.grep(-> v { false }){ raise TypeError }.get }.must_raise RuntimeError
+    end
+
+    it 'should return a Failure wrapping any error raised while running the given block' do
+      BlockError = Class.new StandardError
+      ->{ @success.grep(-> v { true }){|v| raise BlockError }.get }.must_raise BlockError
+    end
+
+    it 'should return a Try when the block is omitted' do
+      @success.grep(-> v { true }).must_equal @success
+      @success.grep(-> v { false }).must_be_kind_of Failure
+      assert Failure.new(RuntimeError) === @success.grep(-> v { false })
+    end
   end
+
   it 'should support #zip' do
     @success.zip(@success).must_equal Success.new([@success_value] * 2)
     @success.zip(Try{fail}).must_be_kind_of Failure

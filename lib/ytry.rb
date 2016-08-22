@@ -45,8 +45,12 @@ module Ytry
       return wrapped_result if (!wrapped_result.empty? && !wrapped_result.get.respond_to?(:to_ary))
       Try.ary_to_type(wrapped_result.flatten)
     end
-    def grep(pattern, &block)
-      self.empty? ? self : Try.ary_to_type(Try{super}.flatten)
+    def grep pattern
+      return self if self.empty?
+      match = Try {
+        (pattern === self.get) ? self.get : (raise RuntimeError.new("Element not found"))
+      }
+      block_given? ? match.map{|v| yield v} : match
     end
     def flatten level = 1
       level.times.reduce(self) { |current, _|
