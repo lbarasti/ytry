@@ -70,6 +70,25 @@ describe 'Success' do
     Try{1} | -> x {x/0}
     Try{1} | -> x {x}
   end
+  it 'should alias #flat_map with #collect_concat' do
+    @success.method(:flat_map).must_equal @success.method(:collect_concat)
+  end
+
+  describe 'select/reject' do
+    it 'should return the caller when the given block returns true/false respectively' do
+      @success.select(&:even?).must_equal @success
+      @success.reject(&:odd?).must_equal @success
+    end
+    it 'should return a Failure wrapping a RuntimeError when the given block returns false/true respectively' do
+      assert Failure.new(RuntimeError) === @success.select(&:odd?)
+      assert Failure.new(RuntimeError) === @success.reject(&:even?)
+    end
+    it 'should return a Failure when the given block raises one' do
+      assert Failure.new(TypeError) === @success.select{ raise TypeError }
+      assert Failure.new(TypeError) === @success.reject{ raise TypeError }
+    end
+  end
+
   it 'should return itself on `#recover`/`#or_else`' do
     @success.recover{fail}.must_equal @success
     @success.or_else{fail}.must_equal @success
@@ -151,6 +170,9 @@ describe 'Failure' do
     Try{@failure}.flatten(2).must_equal @failure
     Try{@failure}.flatten(3).must_equal @failure
     Try{@failure}.flat_map{|c| c}.must_equal @failure
+  end
+  it 'should alias #flat_map with #collect_concat' do
+    @failure.method(:flat_map).must_equal @failure.method(:collect_concat)
   end
   it 'should not evaluate the given block when calling enumerable methods' do
     initial_value, current_value, toggle_value = new_flag()

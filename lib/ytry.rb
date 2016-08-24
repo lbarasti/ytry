@@ -32,11 +32,22 @@ module Ytry
       return enum_for(__method__) unless block_given?
       return self
     end
-    %i(map select reject collect collect_concat).each do |method|
-      define_method method, ->(&block) {
-        block or return enum_for(method)
-        self.empty? ? self : Try{block.call(self.get)}
-      }
+    def map &block
+      block or return enum_for(__method__)
+      self.empty? ? self : Try{block.call(self.get)}
+    end
+    alias_method :collect, :map
+    def select &block
+      block or return enum_for(__method__)
+      return self if empty?
+      predicate = Try{ block.call(self.get) }
+      return predicate if predicate.empty?
+      predicate.get ? self : Try.ary_to_type([])
+    end
+    def reject &block
+      if block_given? then select {|v| ! block.call(v)}
+      else enum_for(__method__)
+      end
     end
     def flat_map &block
       block or return enum_for(method)
@@ -45,6 +56,7 @@ module Ytry
       return wrapped_result if (!wrapped_result.empty? && !wrapped_result.get.respond_to?(:to_ary))
       Try.ary_to_type(wrapped_result.flatten)
     end
+    alias_method :collect_concat, :flat_map
     def grep pattern
       return self if self.empty?
       match = Try {
