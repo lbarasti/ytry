@@ -194,6 +194,15 @@ describe 'Failure' do
   it 'should return `other` on `#or_else`' do
     @failure.or_else {Try {1}}.get.must_equal 1
   end
+  it 'should not raise an error to the caller if the given block raises one' do
+    assert Failure.new(ArgumentError) === @failure.or_else { fail ArgumentError }
+  end
+  it 'should raise an error to the caller if the block does not return an instance of Try...' do
+    -> { @failure.or_else { 1 } }.must_raise TypeError
+  end
+  it '... Even if the returned value is array-like' do
+    -> { @failure.or_else { [1,2,3] } }.must_raise TypeError
+  end
   it 'should return `other` on `#get_or_else`' do
     @failure.get_or_else {'lazily evaluated'}.must_equal "lazily evaluated"
   end

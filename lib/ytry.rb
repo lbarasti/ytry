@@ -78,8 +78,12 @@ module Ytry
     end
     def or_else
       return self unless empty?
-      other = yield
-      other.is_a?(Try) ? other : raise(Try.invalid_argument('Block should evaluate to an instance of Try', other))
+      candidate = Try{ yield }
+      if (!candidate.empty? && !candidate.get.is_a?(Try))
+        raise(Try.invalid_argument('Block should evaluate to an instance of Try', candidate.get))
+      else
+        candidate.flatten
+      end
     end
     def get_or_else
       raise ArgumentError, 'missing block' unless block_given?

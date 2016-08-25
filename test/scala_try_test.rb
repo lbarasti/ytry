@@ -7,7 +7,7 @@ describe "Try" do
   MyError = Class.new StandardError
 
   let(:error) { RuntimeError.new("TestError") }
-  
+
   describe "Try{}" do
     it "catch exceptions and lift into the Try type" do
       Try{ 1 }.must_equal Success.new(1)
@@ -102,12 +102,11 @@ describe "Try" do
 
     it "returns the first occurring failure when there are multiple failures among the callers" do
       a = Failure.new(error)
-      other_error = MyError.new 
+      other_error = MyError.new
       b = Failure.new(other_error)
 
       a.flat_map{|va| b.map{|vb| va + vb}}.must_equal Failure.new(error)
       b.flat_map{|vb| a.map{|va| vb + va}}.must_equal Failure.new(other_error)
     end
   end
-  
 end
