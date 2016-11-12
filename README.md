@@ -104,7 +104,7 @@ failure = Try{fail}
 Try{success}.flatten # Success(:ok)
 Try{failure}.flatten # Failure(RuntimeError)
 ```
-#flatten accepts one argument, defaulting to 1, which indicates the depth of the flattening operation. Mind that a `Success` can only be flattened as long as it wraps a Try instance. A `Failure` can be flattened an arbitrary number of times, as it always returns itself.
+flatten accepts one argument, defaulting to 1, which indicates the depth of the flattening operation. Mind that a `Success` can only be flattened as long as it wraps a Try instance. A `Failure` can be flattened an arbitrary number of times, as it always returns itself.
 ```
 Try{success}.flatten(1) == Try{success}.flatten # true
 Try{success}.flatten(2) # raises TypeError: Argument must be an array-like object. Found Fixnum
